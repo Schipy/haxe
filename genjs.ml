@@ -496,8 +496,9 @@ and gen_expr ctx e =
 		concat ctx "," (gen_value ctx) el;
 		spr ctx "]"
 	| TThrow e ->
-		spr ctx "throw ";
+		spr ctx "throw new Error(";
 		gen_value ctx e;
+		spr ctx ")"
 	| TVars [] ->
 		()
 	| TVars vl ->
