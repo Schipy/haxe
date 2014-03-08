@@ -13,7 +13,7 @@ class TestIO extends Test {
 			f();
 			eq(null,e,pos);
 		} catch( e2 : Dynamic ) {
-			eq(e2,e,pos);
+			erreq(e2,e,pos);
 		}
 	}
 

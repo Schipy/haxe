@@ -23,6 +23,14 @@ class Test #if swf_mark implements mt.Protect #end {
 			report(v+" should be "+v2,pos);
 	}
 
+	function erreq<T>( e, v : T, ?pos ) {
+		count++;
+		if(Std.string(e).indexOf(Std.string(v)) == -1)
+		{
+			report(Std.string(e)+" should contain "+Std.string(v),pos);
+		}
+	}
+
 	function t( v, ?pos ) {
 		eq(v,true,pos);
 	}

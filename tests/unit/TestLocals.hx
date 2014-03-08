@@ -51,7 +51,7 @@ class TestLocals extends Test {
 		try {
 			throw "hello";
 		} catch( x : Dynamic ) {
-			eq(x,"hello");
+			erreq(x,"hello");
 		}
 		eq(x,0);
 	}

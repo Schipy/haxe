@@ -496,9 +496,12 @@ and gen_expr ctx e =
 		concat ctx "," (gen_value ctx) el;
 		spr ctx "]"
 	| TThrow e ->
-		spr ctx "throw new Error(";
+		spr ctx "throw function(){ var __t_ = ";
 		gen_value ctx e;
-		spr ctx ")"
+		semicolon ctx;
+		spr ctx "return typeof __t_ == \"string\" ? new Error(__t_) : __t_";
+		semicolon ctx;
+		spr ctx "}()";
 	| TVars [] ->
 		()
 	| TVars vl ->
