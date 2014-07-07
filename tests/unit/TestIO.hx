@@ -25,6 +25,7 @@ class TestIO extends Test {
 		b.set(1,0);
 
 		var o = new haxe.io.BytesOutput();
+		eq(o.length, 0);
 
 		o.bigEndian = endian;
 		eq(o.bigEndian,endian);
@@ -34,6 +35,7 @@ class TestIO extends Test {
 		o.writeByte(0x01);
 		o.writeByte(0x02);
 		o.writeByte(0x03);
+		eq(o.length, 4);
 
 		o.write(b);
 		o.writeByte(55);
@@ -55,6 +57,8 @@ class TestIO extends Test {
 
 		var str = "Héllo World !";
 		o.writeString(str);
+
+		eq(o.length, 86);
 
 		o.writeInt16(-12345);
 		excv(function() o.writeInt16(1 << 15),Overflow);
@@ -78,11 +82,11 @@ class TestIO extends Test {
 		o.writeInt32(0xA0FFEEDD);
 		o.writeInt32(0xC0FFEEDD);
 
-		unspec(function() o.writeByte(-1));
-		unspec(function() o.writeByte(257));
-
 		var i = new haxe.io.BytesInput(o.getBytes());
 		i.bigEndian = endian;
+		eq( i.position, 0 );
+		eq( i.length, 113 );
+
 		eq( i.readInt32(), endian ? 0x00010203 : 0x03020100 );
 		eq( i.read(b.length).compare(b) , 0 );
 		eq( i.readByte(), 55 );
@@ -112,6 +116,7 @@ class TestIO extends Test {
 		eq( i.readInt32() , 0xA0FFEEDD );
 		eq( i.readInt32() , 0xC0FFEEDD );
 
+		eq( i.position, i.length );
 	}
 
 	function testBytesBounds() {
@@ -131,4 +136,23 @@ class TestIO extends Test {
 		exc( function() i.readBytes(tmp,0,7) );
 	}
 
+	function testBytesInputSeek() {
+		var b = haxe.io.Bytes.ofString("0123456789abcdef");
+		var i = new haxe.io.BytesInput( b );
+		i.position = 15;
+		eq( i.readByte(), "f".code );
+		exc( i.readByte );
+		i.position = 1;
+		eq( i.readByte(), "1".code );
+		eq( i.readByte(), "2".code );
+		var tmp = haxe.io.Bytes.alloc(14);
+		eq( i.readBytes(tmp,0,13), 13 );
+		exc( i.readByte );
+		i.position = -10;
+		eq( i.position, 0 );
+		eq( i.readByte(), "0".code );
+		i.position = 999;
+		eq( i.position, i.length );
+		exc( i.readByte );
+	}
 }
